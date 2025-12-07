@@ -1,5 +1,5 @@
 import pool from "../../config/db";
-// import  from "bcryptjs"
+import bcrypt from "bcryptjs";
 
 const createUser = async (
   name: string,
@@ -15,6 +15,26 @@ const createUser = async (
     [name, email.toLowerCase(), password, phone, role?.toLowerCase()]
   );
 
+const loginUser = async (email: string, password: string) => {
+  const result = await pool.query(
+    `
+   SELECT * FROM users WHERE email=$1
+   `,
+    [email]
+  );
+  if (result.rowCount === 0) return null;
+
+  const hashedPassword = result.rows[0].password;
+
+  if (bcrypt.compareSync(password, hashedPassword)) {
+    const { password, ...user } = result.rows[0];
+    return user;
+  } else {
+    return null;
+  }
+};
+
 export const authServices = {
   createUser,
+  loginUser,
 };

@@ -1,6 +1,8 @@
-import { Request, Response } from "express";
-import { authServices } from "./auth.services";
 import bcrypt from "bcryptjs";
+import { Request, Response } from "express";
+import jwt from "jsonwebtoken";
+import { authServices } from "./auth.services";
+import config from "../../config";
 
 const createUser = async (req: Request, res: Response) => {
   let { name, email, password, phone, role } = req.body;
@@ -42,4 +44,31 @@ const createUser = async (req: Request, res: Response) => {
   }
 };
 
-export const authController = { createUser };
+const loginUser = async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Credential Missing" });
+  }
+
+  try {
+    const user = await authServices.loginUser(email, password);
+    if (!user) {
+      return res.status(400).json({ success: false, message: "Login failed" });
+    }
+
+    const token = jwt.sign(user, config.jwt_secret!, { expiresIn: "5d" });
+
+    res.status(200).json({
+      success: true,
+      message: "Login successful",
+      data: { token, user },
+    });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const authController = { createUser, loginUser };
