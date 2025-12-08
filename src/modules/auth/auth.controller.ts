@@ -54,7 +54,7 @@ const loginUser = async (req: Request, res: Response) => {
   }
 
   try {
-    const user = await authServices.loginUser(email, password);
+    const user = await authServices.loginUser(email.toLowerCase(), password);
     if (!user) {
       return res.status(400).json({ success: false, message: "Login failed" });
     }
