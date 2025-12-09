@@ -2,9 +2,12 @@ import { Router } from "express";
 import { usersController } from "./users.controller";
 import { verifyToken } from "../../middlewares/verifyToken";
 
-const router = Router()
+const router = Router();
 
-router.get('/', verifyToken(['admin']), usersController.getAllUsers)
+// get all users
+router.get("/", verifyToken(["admin"]), usersController.getAllUsers);
 
+// update an user
+router.put("/:userId", verifyToken(["admin", "customer"]), usersController.updateUser);
 
 export const usersRoutes = router;
