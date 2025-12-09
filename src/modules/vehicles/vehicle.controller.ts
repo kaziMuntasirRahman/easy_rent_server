@@ -51,4 +51,25 @@ const getAllVehicles = async (req: Request, res: Response) => {
   }
 };
 
-export const vehicleController = { addVehicle, getAllVehicles };
+const getVehicleById = async (req: Request, res: Response) => {
+  try {
+    const vehicleId = Number(req.params.vehicleId);
+
+    const result = await vehicleServices.getVehicleById(vehicleId);
+    if (result.rowCount === 0) {
+      return res.status(200).json({
+        success: true,
+        message: `Vehicle bearing id ${vehicleId} doesn't exist.`,
+      });
+    }
+    res.status(200).json({
+      success: true,
+      message: "Vehicles retrieved successfully",
+      data: result.rows,
+    });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const vehicleController = { addVehicle, getAllVehicles, getVehicleById };
