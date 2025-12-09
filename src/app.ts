@@ -1,8 +1,9 @@
 import express, { Request, Response } from "express";
 import { initDB } from "./config/db";
 import logger from "./middlewares/logger";
-import { authRoutes } from "./modules/auth/auth.routes";
-import { usersRoutes } from "./modules/users/users.routes";
+import { authRoutes } from "./modules/auth/auth.route";
+import { usersRoutes } from "./modules/users/user.route";
+import { vehicleRoutes } from "./modules/vehicles/vehicle.route";
 const app = express();
 
 // middlewares
@@ -18,6 +19,9 @@ app.use("/api/v1/auth", logger, authRoutes);
 
 // users apis
 app.use("/api/v1/users", logger, usersRoutes);
+
+// vehicles routes
+app.use("/api/v1/vehicles", logger, vehicleRoutes);
 
 // base route
 app.get("/", logger, (req: Request, res: Response) => {

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { usersServices } from "./users.services";
+import { usersServices } from "./user.service";
 
 const getAllUsers = async (req: Request, res: Response) => {
   try {
@@ -51,9 +51,9 @@ const updateUser = async (req: Request, res: Response) => {
     // 4. update data
     const result = await usersServices.updateUser(
       updatedName,
-      updatedEmail,
+      updatedEmail.toLowerCase(),
       updatedPhone,
-      updatedRole,
+      updatedRole.toLowerCase(),
       userId
     );
 

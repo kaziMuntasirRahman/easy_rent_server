@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { authServices } from "./auth.services";
+import { authServices } from "./auth.service";
 import config from "../../config";
 
 const createUser = async (req: Request, res: Response) => {
