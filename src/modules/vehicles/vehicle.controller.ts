@@ -72,4 +72,77 @@ const getVehicleById = async (req: Request, res: Response) => {
   }
 };
 
-export const vehicleController = { addVehicle, getAllVehicles, getVehicleById };
+const updateVehicle = async (req: Request, res: Response) => {
+  try {
+    const vehicleId = Number(req.params.vehicleId);
+
+    const {
+      vehicle_name,
+      type,
+      registration_number,
+      daily_rent_price,
+      availability_status
+    } = req.body;
+
+    const isVehicleExist = await vehicleServices.getVehicleById(vehicleId);
+    if (!isVehicleExist) {
+      return res.status(400).json({
+        success: false,
+        message: `Vehicle, bearing id ${vehicleId} doesn't exist.`,
+      });
+    }
+
+    const existedVehicle = isVehicleExist.rows[0];
+
+    const updatedVehicleName = vehicle_name ?? existedVehicle.name;
+    const updatedVehicleType = type ?? existedVehicle.type;
+    const updatedVehicleRegistrationNumber =
+      registration_number ?? existedVehicle.registration_number;
+    const updatedVehicleDailyRentPrice =
+      daily_rent_price ?? existedVehicle.daily_rent_price;
+    const updatedAvailabilityStatus =
+      availability_status ?? existedVehicle.availability_status;
+
+    console.log(req.user);
+    console.log(
+      vehicleId,
+      updatedVehicleName,
+      updatedVehicleType,
+      updatedVehicleRegistrationNumber,
+      updatedVehicleDailyRentPrice,
+      updatedAvailabilityStatus
+    );
+
+    const result = await vehicleServices.updateVehicle(
+      vehicleId,
+      updatedVehicleName,
+      updatedVehicleType,
+      updatedVehicleRegistrationNumber,
+      updatedVehicleDailyRentPrice,
+      updatedAvailabilityStatus
+    );
+
+   //  console.log(result);
+
+    if (result.rowCount === 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Failed to update." });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Vehicle updated successfully",
+      data: result.rows[0],
+    });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const vehicleController = {
+  addVehicle,
+  getAllVehicles,
+  getVehicleById,
+  updateVehicle,
+};
