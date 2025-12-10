@@ -50,4 +50,59 @@ const createBooking = async (
   };
 };
 
-export const bookingService = { createBooking };
+const getAllBookings = async (role: string, user_id: number) => {
+  let result: any;
+  if (role === "admin") {
+    result = await pool.query(`
+    SELECT
+    b.id,
+    b.customer_id,
+    b.vehicle_id,
+    TO_CHAR(b.rent_start_date, 'YYYY-MM-DD') AS rent_start_date,
+    TO_CHAR(b.rent_end_date, 'YYYY-MM-DD') AS rent_end_date,
+    b.total_price,
+    b.status,
+
+    json_build_object(
+    'name', u.name,
+    'email', u.email
+    ) AS customer,
+
+    json_build_object(
+    'vehicle_name', v.vehicle_name,
+    'registration_number', v.registration_number
+    ) AS vehicle
+
+    FROM bookings b
+    JOIN vehicles v ON b.vehicle_id = v.id
+    JOIN users u ON b.customer_id = u.id;
+    `);
+  } else {
+    result = await pool.query(
+      `
+    SELECT
+    b.id,
+    b.vehicle_id,
+    TO_CHAR(b.rent_start_date, 'YYYY-MM-DD') AS rent_start_date,
+    TO_CHAR(b.rent_end_date, 'YYYY-MM-DD') AS rent_end_date,
+    b.total_price,
+    b.status,
+
+    json_build_object(
+    'vehicle_name', v.vehicle_name,
+    'type', v.type,
+    'registration_number', v.registration_number
+    ) AS vehicle
+
+    FROM bookings b
+    JOIN vehicles v ON b.vehicle_id = v.id
+    WHERE b.customer_id=$1
+    `,
+      [user_id]
+    );
+  }
+
+  return result;
+};
+
+export const bookingService = { createBooking, getAllBookings };

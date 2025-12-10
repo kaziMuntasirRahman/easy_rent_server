@@ -4,6 +4,15 @@ import { bookingController } from "./booking.controller";
 
 const router = Router();
 
-router.post("/", verifyToken(["admin", "customer"]), bookingController.createBooking);
+router.post(
+  "/",
+  verifyToken(["admin", "customer"]),
+  bookingController.createBooking
+);
+router.get(
+  "/",
+  verifyToken(["admin", "customer"]),
+  bookingController.getAllBookings
+);
 
 export const bookingRoute = router;
