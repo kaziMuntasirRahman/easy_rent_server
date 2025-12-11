@@ -51,8 +51,29 @@ const updateVehicle = async (
     ]
   );
 
-const deleteVehicle = async (vehicleId: number) =>
-  await pool.query(`DELETE FROM vehicles WHERE id=$1 RETURNING *`, [vehicleId]);
+const deleteVehicle = async (vehicleId: number) => {
+  console.log(`vehicleId: ${vehicleId}`);
+  console.log(`type of vehicleId: ${typeof vehicleId}`);
+
+  const isVehicleExist = await vehicleServices.getVehicleById(vehicleId);
+
+  if (!isVehicleExist) {
+    throw new Error(`Vehicle, bearing id ${vehicleId} doesn't exist.`);
+  }
+
+  const existedVehicle = isVehicleExist.rows[0];
+
+  if (existedVehicle.availability_status === "booked") {
+    throw new Error(
+      `Can not delete vehicle, bearing id ${vehicleId} because it is booked. `
+    );
+  }
+
+  return await pool.query(
+    `DELETE FROM vehicles WHERE id=$1 AND availability_status='available' RETURNING *`,
+    [vehicleId]
+  );
+};
 
 export const vehicleServices = {
   addVehicle,

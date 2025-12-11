@@ -30,4 +30,37 @@ const updateUser = async (
   return result.rows[0];
 };
 
-export const usersServices = { getAllUsers, updateUser, getUserById };
+const deleteUser = async (userId: number) => {
+  const existedUser = await getUserById(userId);
+  if (!existedUser)
+    throw new Error(`User bearing id: ${userId} doesn't exist.`);
+
+  const active = await pool.query(
+    `
+    SELECT * FROM bookings
+    WHERE customer_id = $1
+      AND rent_end_date >= CURRENT_DATE
+    `,
+    [userId]
+  );
+
+  if (active.rowCount! > 0) {
+    throw new Error("User has active bookings. Cannot delete.");
+  }
+
+  const result = await pool.query(
+    `
+      DELETE FROM users WHERE id=$1
+    `,
+    [userId]
+  );
+  if (!result) throw new Error("Failed to delete.");
+  return true;
+};
+
+export const usersServices = {
+  getAllUsers,
+  updateUser,
+  getUserById,
+  deleteUser,
+};
